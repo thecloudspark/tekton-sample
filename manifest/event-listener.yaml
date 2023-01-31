@@ -1,0 +1,23 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: hello-listener
+spec:
+  serviceAccountName: tekton-robot
+  triggers:
+    - name: hello-trigger 
+      interceptors:
+        - ref:
+            name: "cel"
+          params:
+            - name: "filter"
+              value: "body.resource.refUpdates[0].name in ['refs/heads/master']"
+        - ref:
+            name: "cel"
+          params:
+            - name: "filter"
+              value: "header.match('X-Secret-Key', 'secret')"
+      bindings:
+      - ref: hello-binding
+      template:
+        ref: hello-template
